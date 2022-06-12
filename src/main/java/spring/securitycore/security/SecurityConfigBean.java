@@ -1,9 +1,11 @@
 package spring.securitycore.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,9 +24,12 @@ import spring.securitycore.security.service.CustomUserDetailsService;
 
 import javax.sql.DataSource;
 
+@RequiredArgsConstructor
 //@Configuration
 //@EnableWebSecurity
 public class SecurityConfigBean {
+
+    private final AuthenticationDetailsSource authenticationDetailsSource;
 
     /**
      * 직접 인증을 정의하고 싶다면 UserDetailsService 를 구현하여 Bean 으로 등록하면 된다.
@@ -77,6 +82,7 @@ public class SecurityConfigBean {
                 .formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/login_proc")
+                .authenticationDetailsSource(authenticationDetailsSource)
                 .defaultSuccessUrl("/")
                 .permitAll();
 
