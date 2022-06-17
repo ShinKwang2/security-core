@@ -7,15 +7,14 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import spring.securitycore.security.common.FormAuthenticationDetailsSource;
 import spring.securitycore.security.common.FormWebAuthenticationDetails;
 import spring.securitycore.security.service.AccountContext;
+import spring.securitycore.security.token.AjaxAuthenticationToken;
 
 @RequiredArgsConstructor
-public class CustomAuthenticationProvider implements AuthenticationProvider {
+public class AjaxAuthenticationProvider implements AuthenticationProvider {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -30,26 +29,22 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         if (!passwordEncoder.matches(password, accountContext.getAccount().getPassword())) {
             throw new BadCredentialsException("Invalid Password");
-//            throw new BadCredentialsException("BadCredentialsException");
         }
 
         String secretKey = ((FormWebAuthenticationDetails) authentication.getDetails()).getSecretKey();
-//        FormWebAuthenticationDetails details = (FormWebAuthenticationDetails) authentication.getDetails();
-//        String secretKey = details.getSecretKey();
 
         if (secretKey == null || !"secret".equals(secretKey)) {
-            throw new IllegalArgumentException("Invalid Secret");
-//            throw new InsufficientAuthenticationException("InsufficientAuthenticationException");
+            throw new InsufficientAuthenticationException("InsufficientAuthenticationException");
         }
 
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(accountContext.getAccount(), null, accountContext.getAuthorities());
+        AjaxAuthenticationToken authenticationToken =
+                new AjaxAuthenticationToken(accountContext.getAccount(), null, accountContext.getAuthorities());
 
         return authenticationToken;
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
+        return AjaxAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

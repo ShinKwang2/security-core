@@ -1,10 +1,13 @@
-package spring.securitycore.security;
+package spring.securitycore.security.configs;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,12 +21,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import spring.securitycore.security.filter.AjaxLoginProcessingFilter;
 import spring.securitycore.security.handler.CustomAccessDeniedHandler;
 import spring.securitycore.security.provider.CustomAuthenticationProvider;
 
+@Slf4j
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
+@Order(1)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
@@ -35,16 +42,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 //        auth.userDetailsService(userDetailsService);
         auth.authenticationProvider(authenticationProvider());
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        return new CustomAuthenticationProvider(userDetailsService, passwordEncoder());
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Override
@@ -76,6 +73,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler());
 
+
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        return new CustomAuthenticationProvider(userDetailsService, passwordEncoder());
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
@@ -84,4 +92,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         accessDeniedHandler.setErrorPage("/denied");
         return accessDeniedHandler;
     }
+
+
 }

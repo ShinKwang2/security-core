@@ -1,4 +1,4 @@
-package spring.securitycore.security;
+package spring.securitycore.security.configs;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
