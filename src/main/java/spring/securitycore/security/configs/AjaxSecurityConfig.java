@@ -11,9 +11,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import spring.securitycore.security.filter.AjaxLoginProcessingFilter;
+import spring.securitycore.security.handler.AjaxAuthenticationFailureHandler;
+import spring.securitycore.security.handler.AjaxAuthenticationSuccessHandler;
 import spring.securitycore.security.provider.AjaxAuthenticationProvider;
+
+import javax.sql.DataSource;
 
 @RequiredArgsConstructor
 @Configuration
@@ -27,6 +33,22 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(ajaxAuthenticationProvider());
     }
+    @Bean
+    public AjaxAuthenticationProvider ajaxAuthenticationProvider() {
+        return new AjaxAuthenticationProvider(userDetailsService, passwordEncoder);
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler ajaxAuthenticationSuccessHandler() {
+        return new AjaxAuthenticationSuccessHandler();
+    }
+
+    @Bean
+    public AuthenticationFailureHandler ajaxAuthenticationFailureHandler() {
+        return new AjaxAuthenticationFailureHandler();
+    }
+
+
 
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -49,11 +71,8 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
     public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
         AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
         ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManagerBean());
+        ajaxLoginProcessingFilter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler());
+        ajaxLoginProcessingFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
         return ajaxLoginProcessingFilter;
-    }
-
-    @Bean
-    public AjaxAuthenticationProvider ajaxAuthenticationProvider() {
-        return new AjaxAuthenticationProvider(userDetailsService, passwordEncoder);
     }
 }
